@@ -4,7 +4,7 @@
     <textarea name="postInput" id="postInput" placeholder="Share your comment ..." onclick="showForm()"></textarea>
 
     <!-- Actual comment form -->
-    <form action="/pendahesabu/<?php echo $_SESSION['user']['role']?>/post/comment/send" 
+    <form action="/educhat/<?php echo $_SESSION['user']['role']?>/post/comment/send" 
           id="postForm" 
           method="post"  
           enctype="multipart/form-data" 
@@ -43,7 +43,7 @@
                 <p><?php echo htmlspecialchars($comment['comment']); ?></p>
 
                 <?php if (!empty($comment['image_path'])): ?>
-                    <img src="/pendahesabu/public<?php echo $comment['image_path']; ?>" alt="photo">
+                    <img src="/educhat/public<?php echo $comment['image_path']; ?>" alt="photo">
                 <?php endif; ?>
 
                 <span class="timestamp">
@@ -51,7 +51,7 @@
                 </span>
 
                 <?php if($comment['userid'] === $_SESSION['user']['id']): ?>
-                    <a href="/pendahesabu/<?php echo $_SESSION['user']['role'] ?>/comment/delete/<?php echo $comment['id']; ?>" class="deleteBtn" id="confirmBtn">Delete Comment</a>
+                    <a href="/educhat/<?php echo $_SESSION['user']['role'] ?>/comment/delete/<?php echo $comment['id']; ?>" class="deleteBtn" id="confirmBtn">Delete Comment</a>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>

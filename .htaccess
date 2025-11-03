@@ -1,7 +1,10 @@
+# Enable rewriting
 RewriteEngine On
-RewriteBase /pendahesabu/
+RewriteBase /educhat/
 
-# Forward all requests to index.php except for existing files/directories
+# Skip existing files and directories
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [L]
+
+# Forward all other requests to index.php, preserving path
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]

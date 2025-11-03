@@ -53,7 +53,7 @@
         <h1>404</h1>
         <h2>Oops! Page Not Found</h2>
         <p>The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-        <a href="/pendahesabu/login">Go Back Home</a>
+        <a href="/educhat/login">Go Back Home</a>
     </div>
 </body>
 </html>

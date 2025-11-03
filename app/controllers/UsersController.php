@@ -36,7 +36,7 @@ public function create()
     $role  = $_POST['role'] ?? null;
     $isLogged = isset($_SESSION['user']['role']);
     if ($isLogged) {
-        $redirectBase = "/pendahesabu/{$_SESSION['user']['role']}/users";
+        $redirectBase = "/educhat/{$_SESSION['user']['role']}/users";
     }
 
     // Determine which school the new user belongs to
@@ -85,14 +85,14 @@ public function create()
     // Validation
     if (empty($name) || empty($email) || empty($password) || empty($role)) {
         $_SESSION["error"] = "All fields are required.".$role;
-        $redirect = $isLogged ? $redirectBase : "/pendahesabu/register";
+        $redirect = $isLogged ? $redirectBase : "/educhat/register";
         header("Location: $redirect");
         exit;
     }
 
     if (!$isLogged && $password !== $password2) {
         $_SESSION["error"] = "Passwords do not match.";
-        header("Location: /pendahesabu/register");
+        header("Location: /educhat/register");
         exit();
     }
 
@@ -109,7 +109,7 @@ public function create()
     if ($isLogged) {
         header("Location: $redirectBase");
     } else {
-        header("Location: /pendahesabu/register");
+        header("Location: /educhat/register");
     }
     exit;
 }
@@ -123,31 +123,31 @@ public function create()
 
         if (empty($email) || empty($password)) {
             $_SESSION["error"] ="All fields are required!";
-            header("location:/pendahesabu/login");
+            header("location:/educhat/login");
             exit();
         }
 
         $user=$this->model->getUserByEmail($email);
         if ($user === null) {
             $_SESSION["error"] ="User not found!";
-            header("location:/pendahesabu/register");
+            header("location:/educhat/register");
             exit();
         }
 
         if (password_verify($password,$user['password'])) {
             if($user['status']==='pending' && $user['role']==='school'){
                 $_SESSION["error"] = "Successful Login. Account not yet approved!";
-           	 	header("location:/pendahesabu/login");
+           	 	header("location:/educhat/login");
             	exit();
             }
             $_SESSION['success'] = 'Login successful!';
             $_SESSION['user']= $user;
             $_SESSION['token']= bin2hex(random_bytes(16));
-            header("location:/pendahesabu/".$user['role']."/");
+            header("location:/educhat/".$user['role']."/");
             exit();
         }else {
             $_SESSION["error"] = "Incorrect password!";
-            header("location:/pendahesabu/login");
+            header("location:/educhat/login");
             exit();
         }  
     }
@@ -159,7 +159,7 @@ public function create()
         session_destroy();
         session_start();
         $_SESSION["success"] = "Logged out successfully.";
-        header("Location: /pendahesabu/login");
+        header("Location: /educhat/login");
         exit();
     }
 
@@ -170,7 +170,7 @@ public function create()
         $role = $_SESSION['user']['role'] ?? null;
         if ($user === null) {
             $_SESSION["error"] = "User not found!";
-            header("Location: /pendahesabu/$role"."s/");
+            header("Location: /educhat/$role"."s/");
             exit();
         }
         return $user;
@@ -185,7 +185,7 @@ public function create()
         if (empty($id)) {
             $_SESSION["error"] = "User ID is required!";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /pendahesabu/{$role}/users");
+            header("Location: /educhat/{$role}/users");
             exit();
         }
 
@@ -193,12 +193,12 @@ public function create()
         if ($response > 0) {
             $_SESSION["success"] = "User deleted successfully.";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /pendahesabu/{$role}/users");
+            header("Location: /educhat/{$role}/users");
             exit();
         } else {
             $_SESSION["error"] = "Delete failed. User may not exist.";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /pendahesabu/{$role}/users");
+            header("Location: /educhat/{$role}/users");
             exit();
         }
         }  
@@ -210,14 +210,14 @@ public function create()
         if (empty($term)) {
             $_SESSION["error"] = "Search term is required!";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /pendahesabu/$role"."s/");
+            header("Location: /educhat/$role"."s/");
             exit();
         }
         $users=$this->model->search($term);
         if ($users === null) {
             $_SESSION["error"] = "No users found matching '$term'.";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /pendahesabu/$role"."s/");
+            header("Location: /educhat/$role"."s/");
             exit();
         }
         return $users;
@@ -229,14 +229,14 @@ public function create()
         $userId = $_SESSION['user']['id'] ?? null;
         if ($userId === null) {
             $_SESSION["error"] = "User not logged in.";
-            header("Location: /pendahesabu/login");
+            header("Location: /educhat/login");
             exit();
         }
 
         $user = $this->model->getById($userId);
         if ($user === null) {
             $_SESSION["error"] = "User not found.";
-            header("Location: /pendahesabu/login");
+            header("Location: /educhat/login");
             exit();
         }
                 require __DIR__ . '/../views/users/settings.php';
@@ -246,7 +246,7 @@ public function create()
     $userId = $_SESSION['user']['id'] ?? null;
     if ($userId === null) {
         $_SESSION["error"] = "User not logged in.";
-        header("Location: /pendahesabu/login");
+        header("Location: /educhat/login");
         exit();
     }
 
@@ -261,33 +261,7 @@ public function create()
     }else {
         $_SESSION['error']='Update failed or no changes made.';
     }
-    header("Location: /pendahesabu/users/settings");
-}
-
- function sendOneSignalNotification($user_ids, $message, $comment_id) {
-    $fields = array(
-        'app_id' => "Y2973e886-8b40-46d9-b57f-2168d8469650",
-        'include_external_user_ids' => $user_ids,
-        'headings' => array("en" => "New Update"),
-        'contents' => array("en" => $message),
-        'url' => "http://localhost/pendahesabu/student/post/$comment_id" // URL to redirect on click
-    );
-
-    $fields = json_encode($fields);
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json; charset=utf-8',
-        'Authorization: msif3jmfyep6ehhkc5jbqzmb5'
-    ));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_POST, TRUE);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    return $response;
+    header("Location: /educhat/users/settings");
 }
 
 }

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schools | Teachers</title>
-     <link rel="stylesheet" href="/pendahesabu/public/css/master.css">
-    <link rel="stylesheet" href="/pendahesabu/public/css/alerts.css">
-    <link rel="stylesheet" href="/pendahesabu/public/css/users.css">
+     <link rel="stylesheet" href="/educhat/public/css/master.css">
+    <link rel="stylesheet" href="/educhat/public/css/alerts.css">
+    <link rel="stylesheet" href="/educhat/public/css/users.css">
 </head>
 <body>
     <?php $role="school"; require_once __DIR__."/../includes/topbar.php";?>

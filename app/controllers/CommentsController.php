@@ -31,7 +31,7 @@ class CommentsController
         // Max size: 5MB
         if ($_FILES['file']['size'] > 5 * 1024 * 1024) {
             $_SESSION["error"] = "File too large. Max 5MB allowed.";
-            header("Location: /pendahesabu/{$userDir}/post/{$post}");
+            header("Location: /educhat/{$userDir}/post/{$post}");
             exit();
         }
 
@@ -39,7 +39,7 @@ class CommentsController
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
         if (!in_array($_FILES['file']['type'], $allowed_types)) {
             $_SESSION["error"] = "Only JPG, PNG, GIF files are allowed.";
-            header("Location: /pendahesabu/{$userDir}/post/{$post}");
+            header("Location: /educhat/{$userDir}/post/{$post}");
             exit();
         }
 
@@ -57,7 +57,7 @@ class CommentsController
             $image_path = "/uploads/" . $filename;
         } else {
             $_SESSION["error"] = "Sorry, there was an error uploading your file.";
-            header("Location: /pendahesabu/{$userDir}/post/{$post}");
+            header("Location: /educhat/{$userDir}/post/{$post}");
             exit();
         }
     }
@@ -65,27 +65,22 @@ class CommentsController
     // ✅ Comment must not be empty
     if (empty($comment) && $image_path === null) {
         $_SESSION["error"] = "Comment cannot be empty.";
-        header("Location: /pendahesabu/{$userDir}/post/{$post}");
+        header("Location: /educhat/{$userDir}/post/{$post}");
         exit();
     }
 
     // ✅ Save comment via model
     $response = $this->model->post($post, $comment,$commenter, $image_path);
     if ($response > 0) {
-        $comment_id=$response;
-        $school_id=$_SESSION['user']['role']==='school' ? $commenter : $_SESSION['user']['school_id'];
-        $users=$this->users->notifyUsers($school_id,$commenter);
-        $message=$_SESSION['user']['name']." posted a new update.";
-        $this->sendOneSignalNotification($users,$message,$comment_id);
         $_SESSION["success"] = "Comment created successfully.";
-        header("Location: /pendahesabu/{$userDir}/posts");
+        header("Location: /educhat/{$userDir}/posts");
         exit();
     } else {
         $_SESSION['error'] = "Failed to submit comment.";
     }
 
     // ✅ Redirect back to the post page (not to comment() again)
-    header("Location: /pendahesabu/{$userDir}/post/{$post}");
+    header("Location: /educhat/{$userDir}/post/{$post}");
     exit();
 }
 
@@ -104,7 +99,7 @@ class CommentsController
         $comment = $this->model->getCommentById($commentId);
         if (!$comment) {
             $_SESSION['error'] = "Comment not found.".$commentId;
-            header("Location: /pendahesabu/{$_SESSION['user']['role']}/posts");
+            header("Location: /educhat/{$_SESSION['user']['role']}/posts");
             exit();
         }
 
@@ -125,33 +120,7 @@ class CommentsController
         }
 
     //    redirect to the other comments of the post
-    header("Location:/pendahesabu/{$userDir}/posts");
+    header("Location:/educhat/{$userDir}/posts");
         exit();
     }
-
-    private  function sendOneSignalNotification($user_ids, $message, $comment_id) {
-    $fields = array(
-        'app_id' => "Y2973e886-8b40-46d9-b57f-2168d8469650",
-        'include_external_user_ids' => $user_ids,
-        'headings' => array("en" => "New Update"),
-        'contents' => array("en" => $message),
-        'url' => "http://localhost/pendahesabu/student/post/$comment_id" // URL to redirect on click
-    );
-
-    $fields = json_encode($fields);
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json; charset=utf-8',
-        'Authorization: msif3jmfyep6ehhkc5jbqzmb5'
-    ));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_POST, TRUE);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    return $response;
-}
 }
