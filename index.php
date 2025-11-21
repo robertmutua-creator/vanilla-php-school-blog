@@ -17,7 +17,7 @@ $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $request = trim($request, '/');
 
 // Update base to current folder
-$base = 'educhat';
+$base = 'vanilla_blog';
 
 // Remove base folder from request if present
 if ($request === $base) {
@@ -53,14 +53,14 @@ switch (true) {
         break;
 
     case $request === 'logout':
-        require_once __DIR__."/app/controllers/UsersController.php";
+        require_once __DIR__ . "/app/controllers/UsersController.php";
         (new UsersController())->logout();
         break;
 
     // ----- Posts listing -----
     case preg_match('#^(school|teacher|student)(/posts)?$#', $request, $matches):
         $type = strtolower($matches[1]);
-        require_once __DIR__."/app/controllers/PostsController.php";
+        require_once __DIR__ . "/app/controllers/PostsController.php";
         $posts = new PostsController();
         $posts->index();
 
@@ -75,7 +75,7 @@ switch (true) {
 
     // ----- Create posts -----
     case preg_match('#^(school|teacher|student)/create-post$#', $request, $matches):
-        require_once __DIR__."/app/controllers/PostsController.php";
+        require_once __DIR__ . "/app/controllers/PostsController.php";
         (new PostsController())->create();
         break;
 
@@ -84,11 +84,11 @@ switch (true) {
         $type = strtolower($matches[1]);
         $id = $matches[2];
 
-        require_once __DIR__."/app/controllers/PostsController.php";
+        require_once __DIR__ . "/app/controllers/PostsController.php";
         $posts = new PostsController();
         $post  = $posts->getPost($id);
 
-        require_once __DIR__."/app/controllers/CommentsController.php";
+        require_once __DIR__ . "/app/controllers/CommentsController.php";
         $comments = new CommentsController();
         $comments = $comments->show($id);
 
@@ -103,29 +103,29 @@ switch (true) {
 
     // ----- Delete posts -----
     case preg_match('#^(school|teacher|student)/post/delete/(\d+)$#', $request, $matches):
-        require_once __DIR__."/app/controllers/PostsController.php";
+        require_once __DIR__ . "/app/controllers/PostsController.php";
         (new PostsController())->delete($matches[2]);
         break;
 
     // ----- Comments actions -----
     case preg_match('#^(school|teacher|student)/post/comment/send$#', $request):
-        require_once __DIR__."/app/controllers/CommentsController.php";
+        require_once __DIR__ . "/app/controllers/CommentsController.php";
         (new CommentsController())->comment();
         break;
 
     case preg_match('#^(school|teacher|student)/comment/delete/(\d+)$#', $request, $matches):
-        require_once __DIR__."/app/controllers/CommentsController.php";
+        require_once __DIR__ . "/app/controllers/CommentsController.php";
         (new CommentsController())->delete($matches[2]);
         break;
 
     // ----- Users management -----
     case preg_match('#^(school|teacher|student)/users$#', $request, $matches):
         $type = strtolower($matches[1]);
-        require_once __DIR__."/app/controllers/UsersController.php";
+        require_once __DIR__ . "/app/controllers/UsersController.php";
         $users = new UsersController();
         $usersList = $users->index();
 
-        $viewFile = __DIR__ . "/app/views/{$type}s/teachers.php";
+        $viewFile = __DIR__ . "/app/views/{$type}s/users.php";
         if (file_exists($viewFile)) {
             require $viewFile;
         } else {
@@ -135,24 +135,24 @@ switch (true) {
         break;
 
     case preg_match('#^(school|teacher)/new-user$#', $request, $matches):
-        require_once __DIR__."/app/controllers/UsersController.php";
+        require_once __DIR__ . "/app/controllers/UsersController.php";
         (new UsersController())->create();
         break;
 
     case $request === 'users/settings':
-        require_once __DIR__.'/app/controllers/UsersController.php';
+        require_once __DIR__ . '/app/controllers/UsersController.php';
         $users = new UsersController();
         $users->settings();
         break;
 
     case $request === 'users/update' && $_SERVER['REQUEST_METHOD'] === 'POST':
-        require_once __DIR__.'/app/controllers/UsersController.php';
+        require_once __DIR__ . '/app/controllers/UsersController.php';
         $users = new UsersController();
         $users->update();
         break;
 
     case $request === 'users/delete':
-        require_once __DIR__."/app/controllers/UsersController.php";
+        require_once __DIR__ . "/app/controllers/UsersController.php";
         $users = new UsersController();
         $users->delete();
         break;
@@ -163,4 +163,3 @@ switch (true) {
         require __DIR__ . '/public/404.php';
         break;
 }
-?>

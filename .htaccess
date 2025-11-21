@@ -1,6 +1,6 @@
 # Enable rewriting
 RewriteEngine On
-RewriteBase /educhat/
+RewriteBase /vanilla_blog/
 
 # Skip existing files and directories
 RewriteCond %{REQUEST_FILENAME} !-f

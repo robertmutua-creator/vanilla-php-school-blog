@@ -1,11 +1,12 @@
 <?php
-$model= __DIR__ ."/../models/Users.php";
+$model = __DIR__ . "/../models/Users.php";
 require_once $model;
 
 class UsersController
 {
     private $model;
-    public function __construct() {
+    public function __construct()
+    {
         // Session start
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -16,140 +17,140 @@ class UsersController
     // show function
     public function index()
     {
-        if ($_SESSION['user']['role']==='school') {
-            $school=$_SESSION['user']['id'];
-            $role='teacher';
-        }else {
-            $school=$_SESSION['user']['school_id'];
-            $role='student';
+        if ($_SESSION['user']['role'] === 'school') {
+            $school = $_SESSION['user']['id'];
+            $role = 'teacher';
+        } else {
+            $school = $_SESSION['user']['school_id'];
+            $role = 'student';
         }
-        return $this->model->index($role,$school);
+        return $this->model->index($role, $school);
     }
 
     // register function
     // Register function
-public function create()
-{
-    // Sanitize inputs
-    $name  = ucwords(strtolower(trim($_POST["name"] ?? '')));
-    $email = strtolower(trim($_POST["email"] ?? ''));
-    $role  = $_POST['role'] ?? null;
-    $isLogged = isset($_SESSION['user']['role']);
-    if ($isLogged) {
-        $redirectBase = "/educhat/{$_SESSION['user']['role']}/users";
-    }
-
-    // Determine which school the new user belongs to
-    if ($_SESSION['user']['role'] === 'school') {
-        // If logged in as a school
-        $school_id = $_SESSION['user']['id'];
-    } else {
-        // If logged in as teacher or student, inherit the school's ID
-        $school_id = $_SESSION['user']['school_id'];
-    }
-
-    if ($isLogged) {
-        $schoolDetails = $this->model->getById($school_id);
-        if (!$schoolDetails) {
-        $_SESSION["error"] = "Fetching school info failed.";
-        header("Location: $redirectBase");
-        exit;
-    }
-    }
-
-
-    // Extract domain part of the school's email (e.g. "schoola" from "schoola@mail.com")
-    if ($_SESSION['user']['role']==='student' || $_SESSION['user']['role']==='teacher') {
-        if (empty($email) || $email===null) {
-            $_SESSION['error']='Admission number required!';
-            header("Location:$redirectBase");
-            exit;
-        }else {
-            $schoolEmail = $schoolDetails['email'];
-            $adm = explode('@', $schoolEmail)[0]; // before the '@'
-            $email = $email . '@' . $adm;
+    public function create()
+    {
+        // Sanitize inputs
+        $name  = ucwords(strtolower(trim($_POST["name"] ?? '')));
+        $email = strtolower(trim($_POST["email"] ?? ''));
+        $role  = $_POST['role'] ?? null;
+        $isLogged = isset($_SESSION['user']['role']);
+        if ($isLogged) {
+            $redirectBase = "/vanilla_blog/{$_SESSION['user']['role']}/users";
         }
-    }
 
-    // Password handling
-    if ($isLogged) {
-        // Logged in users (schools, teachers) => auto password = email
-        $password  = $email;
-        $password2 = $email;
-    } else {
-        // Public registration
-        $password  = $_POST["password"] ?? null;
-        $password2 = $_POST["password2"] ?? null;
-    }
+        // Determine which school the new user belongs to
+        if ($_SESSION['user']['role'] === 'school') {
+            // If logged in as a school
+            $school_id = $_SESSION['user']['id'];
+        } else {
+            // If logged in as teacher or student, inherit the school's ID
+            $school_id = $_SESSION['user']['school_id'];
+        }
 
-    // Validation
-    if (empty($name) || empty($email) || empty($password) || empty($role)) {
-        $_SESSION["error"] = "All fields are required.".$role;
-        $redirect = $isLogged ? $redirectBase : "/educhat/register";
-        header("Location: $redirect");
+        if ($isLogged) {
+            $schoolDetails = $this->model->getById($school_id);
+            if (!$schoolDetails) {
+                $_SESSION["error"] = "Fetching school info failed.";
+                header("Location: $redirectBase");
+                exit;
+            }
+        }
+
+
+        // Extract domain part of the school's email (e.g. "schoola" from "schoola@mail.com")
+        if ($_SESSION['user']['role'] === 'student' || $_SESSION['user']['role'] === 'teacher') {
+            if (empty($email) || $email === null) {
+                $_SESSION['error'] = 'Admission number required!';
+                header("Location:$redirectBase");
+                exit;
+            } else {
+                $schoolEmail = $schoolDetails['email'];
+                $adm = explode('@', $schoolEmail)[0]; // before the '@'
+                $email = $email . '@' . $adm;
+            }
+        }
+
+        // Password handling
+        if ($isLogged) {
+            // Logged in users (schools, teachers) => auto password = email
+            $password  = $email;
+            $password2 = $email;
+        } else {
+            // Public registration
+            $password  = $_POST["password"] ?? null;
+            $password2 = $_POST["password2"] ?? null;
+        }
+
+        // Validation
+        if (empty($name) || empty($email) || empty($password) || empty($role)) {
+            $_SESSION["error"] = "All fields are required." . $role;
+            $redirect = $isLogged ? $redirectBase : "/vanilla_blog/register";
+            header("Location: $redirect");
+            exit;
+        }
+
+        if (!$isLogged && $password !== $password2) {
+            $_SESSION["error"] = "Passwords do not match.";
+            header("Location: /vanilla_blog/register");
+            exit();
+        }
+
+        // Create the new user
+        $userCreated = $this->model->createUser($name, $email, $password, $role, $school_id);
+
+        if ($userCreated) {
+            $_SESSION["success"] = ucfirst($role) . " registered successfully.";
+        } else {
+            $_SESSION["error"] = "Failed to register $role.";
+        }
+
+        // Redirect appropriately
+        if ($isLogged) {
+            header("Location: $redirectBase");
+        } else {
+            header("Location: /vanilla_blog/register");
+        }
         exit;
     }
-
-    if (!$isLogged && $password !== $password2) {
-        $_SESSION["error"] = "Passwords do not match.";
-        header("Location: /educhat/register");
-        exit();
-    }
-
-    // Create the new user
-    $userCreated = $this->model->createUser($name, $email, $password, $role, $school_id);
-
-    if ($userCreated) {
-        $_SESSION["success"] = ucfirst($role) . " registered successfully.";
-    } else {
-        $_SESSION["error"] = "Failed to register $role.";
-    }
-
-    // Redirect appropriately
-    if ($isLogged) {
-        header("Location: $redirectBase");
-    } else {
-        header("Location: /educhat/register");
-    }
-    exit;
-}
 
 
     // login function
     public function login()
     {
-        $email=strtolower(trim($_POST["email"]));
-        $password=$_POST["password"];
+        $email = strtolower(trim($_POST["email"]));
+        $password = $_POST["password"];
 
         if (empty($email) || empty($password)) {
-            $_SESSION["error"] ="All fields are required!";
-            header("location:/educhat/login");
+            $_SESSION["error"] = "All fields are required!";
+            header("location:/vanilla_blog/login");
             exit();
         }
 
-        $user=$this->model->getUserByEmail($email);
+        $user = $this->model->getUserByEmail($email);
         if ($user === null) {
-            $_SESSION["error"] ="User not found!";
-            header("location:/educhat/register");
+            $_SESSION["error"] = "User not found!";
+            header("location:/vanilla_blog/register");
             exit();
         }
 
-        if (password_verify($password,$user['password'])) {
-            if($user['status']==='pending' && $user['role']==='school'){
+        if (password_verify($password, $user['password'])) {
+            if ($user['status'] === 'pending' && $user['role'] === 'school') {
                 $_SESSION["error"] = "Successful Login. Account not yet approved!";
-           	 	header("location:/educhat/login");
-            	exit();
+                header("location:/vanilla_blog/login");
+                exit();
             }
             $_SESSION['success'] = 'Login successful!';
-            $_SESSION['user']= $user;
-            $_SESSION['token']= bin2hex(random_bytes(16));
-            header("location:/educhat/".$user['role']."/");
+            $_SESSION['user'] = $user;
+            $_SESSION['token'] = bin2hex(random_bytes(16));
+            header("location:/vanilla_blog/" . $user['role'] . "/");
             exit();
-        }else {
+        } else {
             $_SESSION["error"] = "Incorrect password!";
-            header("location:/educhat/login");
+            header("location:/vanilla_blog/login");
             exit();
-        }  
+        }
     }
 
     // logout function
@@ -159,18 +160,18 @@ public function create()
         session_destroy();
         session_start();
         $_SESSION["success"] = "Logged out successfully.";
-        header("Location: /educhat/login");
+        header("Location: /vanilla_blog/login");
         exit();
     }
 
     // get user by id function
     public function edit($id)
     {
-        $user=$this->model->getById($id);
+        $user = $this->model->getById($id);
         $role = $_SESSION['user']['role'] ?? null;
         if ($user === null) {
             $_SESSION["error"] = "User not found!";
-            header("Location: /educhat/$role"."s/");
+            header("Location: /vanilla_blog/$role" . "s/");
             exit();
         }
         return $user;
@@ -179,45 +180,47 @@ public function create()
 
 
     // drop user function
-    public function delete(){
-        if ($_SERVER['REQUEST_METHOD']==='POST') {
-            $id=trim($_POST["user_id"]);
-        if (empty($id)) {
-            $_SESSION["error"] = "User ID is required!";
-            $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /educhat/{$role}/users");
-            exit();
-        }
+    public function delete()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = trim($_POST["user_id"]);
+            if (empty($id)) {
+                $_SESSION["error"] = "User ID is required!";
+                $role = $_SESSION['user']['role'] ?? null;
+                header("Location: /vanilla_blog/{$role}/users");
+                exit();
+            }
 
-        $response=$this->model->delete($id);
-        if ($response > 0) {
-            $_SESSION["success"] = "User deleted successfully.";
-            $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /educhat/{$role}/users");
-            exit();
-        } else {
-            $_SESSION["error"] = "Delete failed. User may not exist.";
-            $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /educhat/{$role}/users");
-            exit();
+            $response = $this->model->delete($id);
+            if ($response > 0) {
+                $_SESSION["success"] = "User deleted successfully.";
+                $role = $_SESSION['user']['role'] ?? null;
+                header("Location: /vanilla_blog/{$role}/users");
+                exit();
+            } else {
+                $_SESSION["error"] = "Delete failed. User may not exist.";
+                $role = $_SESSION['user']['role'] ?? null;
+                header("Location: /vanilla_blog/{$role}/users");
+                exit();
+            }
         }
-        }  
     }
 
     // search users function
-    public function search(){
-        $term=trim($_POST["term"]);
+    public function search()
+    {
+        $term = trim($_POST["term"]);
         if (empty($term)) {
             $_SESSION["error"] = "Search term is required!";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /educhat/$role"."s/");
+            header("Location: /vanilla_blog/$role" . "s/");
             exit();
         }
-        $users=$this->model->search($term);
+        $users = $this->model->search($term);
         if ($users === null) {
             $_SESSION["error"] = "No users found matching '$term'.";
             $role = $_SESSION['user']['role'] ?? null;
-            header("Location: /educhat/$role"."s/");
+            header("Location: /vanilla_blog/$role" . "s/");
             exit();
         }
         return $users;
@@ -229,39 +232,39 @@ public function create()
         $userId = $_SESSION['user']['id'] ?? null;
         if ($userId === null) {
             $_SESSION["error"] = "User not logged in.";
-            header("Location: /educhat/login");
+            header("Location: /vanilla_blog/login");
             exit();
         }
 
         $user = $this->model->getById($userId);
         if ($user === null) {
             $_SESSION["error"] = "User not found.";
-            header("Location: /educhat/login");
+            header("Location: /vanilla_blog/login");
             exit();
         }
-                require __DIR__ . '/../views/users/settings.php';
+        require __DIR__ . '/../views/users/settings.php';
     }
 
-    public function update() {
-    $userId = $_SESSION['user']['id'] ?? null;
-    if ($userId === null) {
-        $_SESSION["error"] = "User not logged in.";
-        header("Location: /educhat/login");
-        exit();
+    public function update()
+    {
+        $userId = $_SESSION['user']['id'] ?? null;
+        if ($userId === null) {
+            $_SESSION["error"] = "User not logged in.";
+            header("Location: /vanilla_blog/login");
+            exit();
+        }
+
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? null;
+
+        // 🔁 Corrected this line to avoid recursive call
+        $results = $this->model->update($userId, $name, $email, $password);
+        if ($results > 0) {
+            $_SESSION['success'] = 'Update successfull!';
+        } else {
+            $_SESSION['error'] = 'Update failed or no changes made.';
+        }
+        header("Location: /vanilla_blog/users/settings");
     }
-
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? null;
-
-    // 🔁 Corrected this line to avoid recursive call
-    $results = $this->model->update($userId, $name, $email, $password);
-    if ($results>0) {
-        $_SESSION['success']='Update successfull!';
-    }else {
-        $_SESSION['error']='Update failed or no changes made.';
-    }
-    header("Location: /educhat/users/settings");
-}
-
 }

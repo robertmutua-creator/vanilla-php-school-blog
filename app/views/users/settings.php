@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo strtoupper($user['role']);?></title>
-    <link rel="stylesheet" href="/educhat/public/css/master.css">
-    <link rel="stylesheet" href="/educhat/public/css/alerts.css">
-    <link rel="stylesheet" href="/educhat/public/css/forms.css">
-    <link rel="stylesheet" href="/educhat/public/css/settings.css">
+    <title><?php echo strtoupper($user['role']); ?></title>
+    <link rel="stylesheet" href="/vanilla_blog/public/css/master.css">
+    <link rel="stylesheet" href="/vanilla_blog/public/css/alerts.css">
+    <link rel="stylesheet" href="/vanilla_blog/public/css/forms.css">
+    <link rel="stylesheet" href="/vanilla_blog/public/css/settings.css">
 </head>
+
 <body>
-    <?php $role=$_SESSION['user']['role']; include_once __DIR__."/../includes/topbar.php";?>
+    <?php $role = $_SESSION['user']['role'];
+    include_once __DIR__ . "/../includes/topbar.php"; ?>
     <h2>My Profile Settings</h2>
     <div class="settings-container">
-    <form action="/educhat/users/update" method="POST" id="settingsForm">
-        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required><br><br>
+        <form action="/vanilla_blog/users/update" method="POST" id="settingsForm">
+            <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required><br><br>
 
-        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br><br>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br><br>
 
-        <input type="password" id="password" name="password"><br><br>
+            <input type="password" id="password" name="password"><br><br>
 
-        <button type="submit">Update Settings</button>
-        <?php require_once __DIR__."/../../../public/alerts.php";?>
-    </form>
+            <button type="submit">Update Settings</button>
+            <?php require_once __DIR__ . "/../../../public/alerts.php"; ?>
+        </form>
     </div>
-    
-    <?php include_once __DIR__."/../includes/bottombar.php";?>
+
+    <?php include_once __DIR__ . "/../includes/bottombar.php"; ?>
 </body>
+
 </html>

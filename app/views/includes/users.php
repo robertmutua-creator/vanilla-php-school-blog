@@ -4,7 +4,7 @@
   <h3>Registered Users</h3>
 
   <!-- Add User Form -->
-  <form method="POST" action="/educhat/school/new-user">
+  <form method="POST" action="/vanilla_blog/school/new-user">
     <input type="text" name="name" placeholder="Full Name">
     <input type="text" name="email" placeholder="<?= $isSchool ? 'Email Address' : 'Admission Number' ?>">
     <input type="text" name="role" id="role" value="<?= $isSchool ? 'teacher' : 'student' ?>" readonly>
@@ -41,13 +41,12 @@
                 <?php endif; ?>
               </td>
               <td>
-                <form method="POST" action="/educhat/users/delete">
+                <form method="POST" action="/vanilla_blog/users/delete">
                   <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['id']) ?>">
                   <button type="submit" class="btn btn-danger btn-sm" id="confirmBtn"
-                  <?php if ($user['role']==='student') {
-                    echo 'Disabled';
-                  }?>
-                  >Delete</button>
+                    <?php if ($user['role'] === 'student') {
+                      echo 'Disabled';
+                    } ?>>Delete</button>
                 </form>
               </td>
             </tr>

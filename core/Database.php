@@ -1,21 +1,23 @@
 <?php
-class Database {
+class Database
+{
     private static ?PDO $connection = null;
 
-    // private static string $host = "sql100.infinityfree.com";
-    // private static string $dbName = "if0_40159767_ph_db";
-    // private static string $username = "if0_40159767";
+    // private static string $host = " sql107.infinityfree.com";
+    // private static string $dbName = "if0_40309979_ph";
+    // private static string $username = "if0_40309979";
     // private static string $password = "0717721212Eve";
 
     private static string $host = "localhost";
-    private static string $dbName = "ph";
+    private static string $dbName = "vanilla_blog";
     private static string $username = "root";
     private static string $password = "";
 
     // Prevent creating instance
     private function __construct() {}
 
-    public static function getConnection(): PDO {
+    public static function getConnection(): PDO
+    {
         if (self::$connection === null) {
             try {
                 $dsn = "mysql:host=" . self::$host . ";dbname=" . self::$dbName . ";charset=utf8mb4";
@@ -32,4 +34,3 @@ class Database {
         return self::$connection;
     }
 }
-

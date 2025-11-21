@@ -4,18 +4,18 @@
     <textarea name="postInput" id="postInput" placeholder="Share your comment ..." onclick="showForm()"></textarea>
 
     <!-- Actual comment form -->
-    <form action="/educhat/<?php echo $_SESSION['user']['role']?>/post/comment/send" 
-          id="postForm" 
-          method="post"  
-          enctype="multipart/form-data" 
-          style="display:none">
+    <form action="/vanilla_blog/<?php echo $_SESSION['user']['role'] ?>/post/comment/send"
+        id="postForm"
+        method="post"
+        enctype="multipart/form-data"
+        style="display:none">
 
         <!-- Comment text -->
         <textarea name="comment" id="post_text" placeholder="Write something..." required></textarea>
-        
+
         <!-- Hidden post id and commente id -->
         <input type="hidden" name="post" value="<?php echo $post['id']; ?>">
-        <input type="hidden" name="commenter" value="<?php echo $_SESSION['user']['id'];?>">
+        <input type="hidden" name="commenter" value="<?php echo $_SESSION['user']['id']; ?>">
 
         <!-- Optional image -->
         <input type="file" name="file" id="file" accept="image/*">
@@ -23,7 +23,7 @@
         <button type="submit">Comment</button>
     </form>
 
-    <?php require_once __DIR__."/../../../public/alerts.php"; ?>
+    <?php require_once __DIR__ . "/../../../public/alerts.php"; ?>
 </div>
 
 
@@ -32,7 +32,7 @@
 
     <!-- Main Post -->
     <div class="post">
-        <p><?php echo $post['post'];?></p>
+        <p><?php echo $post['post']; ?></p>
     </div>
 
     <!-- Comments -->
@@ -43,15 +43,15 @@
                 <p><?php echo htmlspecialchars($comment['comment']); ?></p>
 
                 <?php if (!empty($comment['image_path'])): ?>
-                    <img src="/educhat/public<?php echo $comment['image_path']; ?>" alt="photo">
+                    <img src="/vanilla_blog/public<?php echo $comment['image_path']; ?>" alt="photo">
                 <?php endif; ?>
 
                 <span class="timestamp">
                     Commented <?php echo $comment['timeDiff'] . " " . $comment['unit']; ?> ago.
                 </span>
 
-                <?php if($comment['userid'] === $_SESSION['user']['id']): ?>
-                    <a href="/educhat/<?php echo $_SESSION['user']['role'] ?>/comment/delete/<?php echo $comment['id']; ?>" class="deleteBtn" id="confirmBtn">Delete Comment</a>
+                <?php if ($comment['userid'] === $_SESSION['user']['id']): ?>
+                    <a href="/vanilla_blog/<?php echo $_SESSION['user']['role'] ?>/comment/delete/<?php echo $comment['id']; ?>" class="deleteBtn" id="confirmBtn">Delete Comment</a>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
@@ -61,4 +61,4 @@
         </div>
     <?php endif; ?>
 
-</div> 
+</div>

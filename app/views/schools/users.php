@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Students | Home</title>
+    <title>Schools | Teachers</title>
     <link rel="stylesheet" href="/vanilla_blog/public/css/master.css">
     <link rel="stylesheet" href="/vanilla_blog/public/css/alerts.css">
     <link rel="stylesheet" href="/vanilla_blog/public/css/users.css">
 </head>
 
 <body>
-    <?php $role = "student";
+    <?php $role = "school";
     require_once __DIR__ . "/../includes/topbar.php"; ?>
     <?php require_once __DIR__ . "/../includes/users.php"; ?>
     <?php include_once __DIR__ . "/../includes/bottombar.php"; ?>
